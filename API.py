@@ -3,6 +3,8 @@ import requests
 import webbrowser
 from tkinter import *
 from requests.exceptions import ConnectionError
+from tkinter import filedialog
+from PIL import ImageTk, Image
 list1=[]
 list2=[]
 symbollist=[]
@@ -11,8 +13,8 @@ def main(value):
     list1=[]
     list2=[]
     try:
-        r=requests.get("https://api.worldtradingdata.com/api/v1/stock?symbol="+ value + "&api_token=ox4j7MTFbQnh0vO7GGeFSRVXuHT4K8qERHJxh8NTZpyhEe7Qf25GpXhrvizX")
-        r2=requests.get("https://api.worldtradingdata.com/api/v1/history?symbol="+ value + "&api_token=ox4j7MTFbQnh0vO7GGeFSRVXuHT4K8qERHJxh8NTZpyhEe7Qf25GpXhrvizX")
+        r=requests.get("https://api.worldtradingdata.com/api/v1/stock?symbol="+ value + "&api_token=wDlGeK1dKNkRmKknWMEyMXmFAHeqddSElO07Th6uqZy5Qx1bMMuZmGdrrtQE")
+        r2=requests.get("https://api.worldtradingdata.com/api/v1/history?symbol="+ value + "&api_token=wDlGeK1dKNkRmKknWMEyMXmFAHeqddSElO07Th6uqZy5Qx1bMMuZmGdrrtQE")
         try:
             if (r.status_code == 200):
         
@@ -29,7 +31,7 @@ def main(value):
                 for i in datajson2['history']:
                     list2.insert(0,str(i)[0:4])
             myfile = open("API2.html","w")
-            myfile.write("<!DOCTYPE HTML><html><head></head><body><p>"+datajson['data'][0]['name']+"("+datajson['data'][0]['symbol']+")"+"</p><p>"+datajson['data'][0]['volume']+" shares traded today</p><canvas id="+" 'chartjs-0' "+"></canvas><script src=" 'https://cdn.jsdelivr.net/npm/chart.js@2.8.0' "></script><script src=" 'https://canvasjs.com/assets/script/canvasjs.min.js' "></script><script>var ctx = document.getElementById('chartjs-0').getContext('2d');var chart = new Chart(ctx, {type: 'line',data: {labels: [")
+            myfile.write("<!DOCTYPE HTML><html><head></head><body><p>"+datajson['data'][0]['name']+"("+datajson['data'][0]['symbol']+")"+"</p><p>"+datajson['data'][0]['volume']+" shares traded today</p><p>Current price is "+datajson['data'][0]['price']+"(" +datajson['data'][0]['currency']+ ")</p><p>There are "+datajson['data'][0]['shares']+" shares in total</p><p>"+datajson['data'][0]['name'] +" has a total value of "+datajson['data'][0]['market_cap']+" dollars and is on the "+datajson['data'][0]['stock_exchange_long']+"</p><canvas id="+" 'chartjs-0' "+"></canvas><script src=" 'https://cdn.jsdelivr.net/npm/chart.js@2.8.0' "></script><script src=" 'https://canvasjs.com/assets/script/canvasjs.min.js' "></script><script>var ctx = document.getElementById('chartjs-0').getContext('2d');var chart = new Chart(ctx, {type: 'line',data: {labels: [")
             for i in range(len(list2)):
                 if i !=0:
                     myfile.write("," + list2[i] )
@@ -47,13 +49,13 @@ def main(value):
             webbrowser.open(url, new=2)
         except:
             print(value)
-            T2 = Text(root, height=3, width=30)
+            T2 = Text(root, height=4, width=30,bg='deep sky blue')
             T2.grid(row=2, column=0,padx=30, pady=25)
-            T2.insert(END, "Sorry, this symbol is not in \nthe database, it will be \ndeleted. Please select a new stock")
+            T2.insert(END, "Sorry, this symbol is not in \nthe database, it will be \ndeleted. Please select a new \nstock")
             deletestock(value)
     except ConnectionError as e:    # This is the correct syntax
         print("Network error")
-        T2 = Text(root, height=2, width=30)
+        T2 = Text(root, height=2, width=30,bg='deep sky blue')
         T2.grid(row=2, column=0,padx=30, pady=25)
         T2.insert(END, "Network error")
         
@@ -83,20 +85,27 @@ def deletestock(a):
 
 root=Tk()
 root.title("Stocks")
-root.geometry("600x600+0+0")
+root.geometry("800x800+0+0")
 root.config(bg='deep sky blue')
 
 OPTIONS=makeList()
 var=StringVar(root)
 var.set(OPTIONS[0])
 w=OptionMenu(root,var,*OPTIONS, command=main)
-w.grid(row=1,column=0, padx=30,pady=25)
-T = Text(root, height=2, width=30)
-T.grid(row=0, column=0,padx=30, pady=25)
+w.grid(row=1,column=0, padx=30,pady=25, sticky=W)
+T = Text(root, height=2, width=30,bg='deep sky blue')
+T.grid(row=0, column=0,padx=30, pady=25,sticky=W)
 T.insert(END, "Pick a stock to learn more \nabout")
 
 
-
+imgframe = Frame(root,borderwidth = 1.5, relief=RAISED, width=400,height=150)
+imgframe.grid(row=3,column=0, padx=10,pady=5, sticky=W)
+canvas = Canvas(imgframe,height=450,width=600)
+canvas.grid(row=0,column=0)
+myimage = Image.open("stocks.jpg")
+#myimage = myimage.resize((200, 150), Image.ANTIALIAS)
+myimg = ImageTk.PhotoImage(myimage)
+canvas.create_image(0, 0, image=myimg, anchor = NW)
 
 
 root.mainloop()
